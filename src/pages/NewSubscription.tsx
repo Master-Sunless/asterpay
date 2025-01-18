@@ -4,9 +4,9 @@ import { ArrowLeft, Check, CreditCard, Plus } from "lucide-react";
 import { useState } from "react";
 import { Header } from "@/components/organisms/Header";
 import { Sidebar } from "@/components/organisms/Sidebar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { PlanCard } from "@/components/molecules/PlanCard";
+import { CustomPlanForm } from "@/components/molecules/CustomPlanForm";
 
 const plans = [
   {
@@ -39,18 +39,21 @@ const NewSubscription = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  const [customPlan, setCustomPlan] = useState({
-    name: "",
-    price: "",
-    duration: "Monthly",
-    features: [""],
-  });
   const [isCustom, setIsCustom] = useState(false);
+  const [customPlan, setCustomPlan] = useState<any>(null);
 
   // TODO: Integrate with Web3 - Handle subscription creation
   const handleSubscribe = async () => {
-    console.log("Creating subscription for plan:", selectedPlan);
+    console.log(
+      "Creating subscription for plan:",
+      isCustom ? customPlan : selectedPlan
+    );
     setStep(3);
+  };
+
+  const handleCustomPlanSubmit = (plan: any) => {
+    setCustomPlan(plan);
+    setStep(2);
   };
 
   return (
@@ -86,70 +89,19 @@ const NewSubscription = () => {
                     <CardHeader>
                       <CardTitle>Custom Subscription</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Subscription Name</Label>
-                        <Input
-                          id="name"
-                          value={customPlan.name}
-                          onChange={(e) =>
-                            setCustomPlan({ ...customPlan, name: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="price">Price (ETH)</Label>
-                        <Input
-                          id="price"
-                          type="number"
-                          step="0.001"
-                          value={customPlan.price}
-                          onChange={(e) =>
-                            setCustomPlan({ ...customPlan, price: e.target.value })
-                          }
-                        />
-                      </div>
-                      <Button
-                        className="w-full"
-                        onClick={() => setStep(2)}
-                        disabled={!customPlan.name || !customPlan.price}
-                      >
-                        Continue with Custom Plan
-                      </Button>
+                    <CardContent>
+                      <CustomPlanForm onSubmit={handleCustomPlanSubmit} />
                     </CardContent>
                   </Card>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {plans.map((plan) => (
-                      <Card
+                      <PlanCard
                         key={plan.id}
-                        className={`cursor-pointer transition-all ${
-                          selectedPlan === plan.id
-                            ? "ring-2 ring-primary"
-                            : "hover:shadow-lg"
-                        }`}
+                        {...plan}
+                        isSelected={selectedPlan === plan.id}
                         onClick={() => setSelectedPlan(plan.id)}
-                      >
-                        <CardHeader>
-                          <CardTitle>{plan.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="mb-4">
-                            <p className="text-2xl font-bold">{plan.price}</p>
-                            <p className="text-sm text-gray-500">
-                              {plan.priceUSD} / {plan.duration}
-                            </p>
-                          </div>
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, index) => (
-                              <li key={index} className="flex items-center">
-                                <Check className="h-4 w-4 mr-2 text-green-500" />
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
+                      />
                     ))}
                   </div>
                 )}
@@ -213,12 +165,8 @@ const NewSubscription = () => {
                   Back
                 </Button>
               )}
-              {step === 1 && (selectedPlan || isCustom) && (
-                <Button
-                  onClick={() => setStep(2)}
-                  className="ml-auto"
-                  disabled={isCustom && (!customPlan.name || !customPlan.price)}
-                >
+              {step === 1 && !isCustom && selectedPlan && (
+                <Button onClick={() => setStep(2)} className="ml-auto">
                   Continue
                 </Button>
               )}

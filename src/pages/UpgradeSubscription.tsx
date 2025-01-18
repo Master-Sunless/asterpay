@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "@/components/organisms/Header";
 import { Sidebar } from "@/components/organisms/Sidebar";
 import { PlanCard } from "@/components/molecules/PlanCard";
+import { useState } from "react";
 
 const upgradePlans = [
   {

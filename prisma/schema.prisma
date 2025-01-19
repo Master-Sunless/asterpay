@@ -1,0 +1,106 @@
+// prisma/schema.prisma
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model ServiceProvider {
+    id          Int           @id @default(autoincrement())
+    name        String        @unique
+    apiKey      String?       // For provider API authentication
+    apiUrl      String?
+    isActive    Boolean       @default(true)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    plans       ServicePlan[]
+    subscriptions Subscription[]
+
+    @@map("service_providers")
+}
+
+model ServicePlan {
+    id              Int           @id @default(autoincrement())
+    providerId      Int
+    provider        ServiceProvider @relation(fields: [providerId], references: [id])
+    name            String
+    externalPlanId  String        // ID used by the service provider
+    priceUSD        Int           // Price in cents
+    features        Json?         // Plan features/limitations
+    isActive        Boolean       @default(true)
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+    subscriptions   Subscription[]
+
+    @@unique([providerId, externalPlanId])
+    @@map("service_plans")
+}
+
+model Subscription {
+    id              Int           @id @default(autoincrement())
+    userId          Int
+    user            User          @relation(fields: [userId], references: [id])
+    providerId      Int
+    provider        ServiceProvider @relation(fields: [providerId], references: [id])
+    planId          Int
+    plan            ServicePlan    @relation(fields: [planId], references: [id])
+    status          SubscriptionStatus
+    virtualCardId   String        @unique
+    cardHash        String        @unique    // Hashed card ID stored on blockchain
+    externalSubId   String?       // Subscription ID from provider
+    lastPriceUSD    Int          // Last charged price in cents
+    startDate       DateTime      @default(now())
+    nextBillingDate DateTime
+    lastBillingDate DateTime?
+    cancelledAt     DateTime?
+    autoRenew       Boolean       @default(true)
+    metadata        Json?         // Additional provider-specific data
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+
+    @@map("subscriptions")
+}
+
+model User {
+    id              Int           @id @default(autoincrement())
+    walletAddress   String        @unique
+    email           String?       @unique
+    subscriptions   Subscription[]
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+
+    @@map("users")
+}
+
+model PaymentTransaction {
+    id              Int           @id @default(autoincrement())
+    subscriptionId  Int
+    amountUSD       Int          // Amount in cents
+    amountToken     String       // Amount in wei
+    tokenAddress    String       // Payment token contract address
+    txHash          String       @unique
+    status          PaymentStatus
+    processingError String?
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+
+    @@map("payment_transactions")
+}
+
+enum SubscriptionStatus {
+    INACTIVE
+    ACTIVE
+    PAYMENT_PENDING
+    SUSPENDED
+    CANCELLED
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
+}

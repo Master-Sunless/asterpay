@@ -1,4 +1,4 @@
-const { sequelize } = require('../models');
+const { sequelize } = require('../../models');
 const { ethers } = require('ethers');
 const ServiceProvider = sequelize.models.ServiceProvider;
 const Subscription = sequelize.models.Subscription;

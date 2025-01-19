@@ -1,36 +1,27 @@
 import { Button } from "@/components/atoms/Button";
 import { Wallet } from "lucide-react";
-import { useState } from "react";
+import { useAccount, useDisconnect } from 'wagmi';
+import { useAppKit } from '@reown/appkit/react';
 
 export const WalletConnector = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [address, setAddress] = useState("");
+  const { address, isConnected } = useAccount();
+  const { open } = useAppKit();
+  const { disconnect } = useDisconnect();
 
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    // Simulated connection delay
-    setTimeout(() => {
-      setIsConnected(true);
-      setAddress("0x1234...5678");
-      setIsConnecting(false);
-    }, 1000);
+  // Format the address to show only first and last 4 characters
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  const handleDisconnect = () => {
-    setIsConnected(false);
-    setAddress("");
-  };
-
-  if (isConnected) {
+  if (isConnected && address) {
     return (
       <div className="flex items-center gap-2">
         <div className="px-4 py-2 rounded-md bg-green-100 text-green-800">
-          {address}
+          {formatAddress(address)}
         </div>
         <Button
           variant="ghost"
-          onClick={handleDisconnect}
+          onClick={() => disconnect()}
           className="text-gray-600"
         >
           Disconnect
@@ -41,8 +32,7 @@ export const WalletConnector = () => {
 
   return (
     <Button
-      onClick={handleConnect}
-      isLoading={isConnecting}
+      onClick={() => open()}
       leftIcon={<Wallet className="h-4 w-4" />}
     >
       Connect Wallet

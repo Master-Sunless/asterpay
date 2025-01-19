@@ -24,7 +24,7 @@ const serviceProviders = [
   { name: "Xbox Game Pass", plans: ["Console", "PC", "Ultimate"] },
 ];
 
-const planPrices = {
+const planPrices: Record<string, Record<string, { eth: string; usd: string }>> = {
   Netflix: {
     Basic: { eth: "0.005", usd: "15" },
     Standard: { eth: "0.008", usd: "24" },
@@ -34,6 +34,15 @@ const planPrices = {
     Individual: { eth: "0.003", usd: "9" },
     Duo: { eth: "0.005", usd: "15" },
     Family: { eth: "0.008", usd: "24" },
+  },
+  "HBO Max": {
+    "With Ads": { eth: "0.004", usd: "12" },
+    "Ad-Free": { eth: "0.007", usd: "21" },
+  },
+  "Xbox Game Pass": {
+    Console: { eth: "0.005", usd: "15" },
+    PC: { eth: "0.005", usd: "15" },
+    Ultimate: { eth: "0.01", usd: "30" },
   },
 };
 
@@ -70,14 +79,10 @@ export const CustomPlanForm = ({ onSubmit }: CustomPlanFormProps) => {
     });
   };
 
-  const selectedProviderPlans = serviceProviders.find(
-    (p) => p.name === provider
-  )?.plans;
-
   const handlePlanSelect = (plan: string) => {
     setSelectedPlan(plan);
     if (!isCustomProvider && provider in planPrices) {
-      const prices = planPrices[provider as keyof typeof planPrices][plan as keyof typeof planPrices[keyof typeof planPrices]];
+      const prices = planPrices[provider][plan];
       if (prices) {
         setPrice(prices.eth);
       }
@@ -97,10 +102,10 @@ export const CustomPlanForm = ({ onSubmit }: CustomPlanFormProps) => {
             setPrice("");
           }}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-popover">
             <SelectValue placeholder="Select a service provider" />
           </SelectTrigger>
-          <SelectContent className="bg-popover">
+          <SelectContent className="bg-popover shadow-lg border-2">
             {serviceProviders.map((provider) => (
               <SelectItem key={provider.name} value={provider.name}>
                 {provider.name}
@@ -118,6 +123,7 @@ export const CustomPlanForm = ({ onSubmit }: CustomPlanFormProps) => {
             value={customProvider}
             onChange={(e) => setCustomProvider(e.target.value)}
             placeholder="Enter provider name"
+            className="bg-background"
           />
         </div>
       )}
@@ -131,24 +137,28 @@ export const CustomPlanForm = ({ onSubmit }: CustomPlanFormProps) => {
                 value={selectedPlan}
                 onChange={(e) => setSelectedPlan(e.target.value)}
                 placeholder="Enter plan name"
+                className="bg-background"
               />
             ) : (
               <Select value={selectedPlan} onValueChange={handlePlanSelect}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-popover">
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover">
-                  {selectedProviderPlans?.map((plan) => (
-                    <SelectItem key={plan} value={plan}>
-                      {plan}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="bg-popover shadow-lg border-2">
+                  {serviceProviders
+                    .find((p) => p.name === provider)
+                    ?.plans.map((plan) => (
+                      <SelectItem key={plan} value={plan}>
+                        {plan}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
           </div>
 
-          {(isCustomProvider || !planPrices[provider as keyof typeof planPrices]?.[selectedPlan as keyof typeof planPrices[keyof typeof planPrices]]) && (
+          {(isCustomProvider ||
+            !planPrices[provider]?.[selectedPlan]) && (
             <div>
               <Label>Price (ETH)</Label>
               <Input
@@ -157,9 +167,10 @@ export const CustomPlanForm = ({ onSubmit }: CustomPlanFormProps) => {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="0.01"
+                className="bg-background"
               />
               {price && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   ≈ ${(parseFloat(price) * 3000).toFixed(2)} USD
                 </p>
               )}

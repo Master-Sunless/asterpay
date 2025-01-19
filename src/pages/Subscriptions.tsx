@@ -24,6 +24,52 @@ const mockSubscriptions = [
     nextPayment: "2024-03-20",
     lastPayment: "2024-02-20",
   },
+  {
+    id: 3,
+    name: "Xbox Game Pass",
+    amount: "0.012 ETH",
+    status: "Active",
+    nextPayment: "2024-03-25",
+    lastPayment: "2024-02-25",
+  },
+  {
+    id: 4,
+    name: "HBO Max",
+    amount: "0.006 ETH",
+    status: "Active",
+    nextPayment: "2024-03-18",
+    lastPayment: "2024-02-18",
+  },
+  {
+    id: 5,
+    name: "Disney+",
+    amount: "0.008 ETH",
+    hasPendingPayment: true,
+    status: "Pending",
+    nextPayment: "2024-03-10",
+    lastPayment: "2024-02-10",
+    pendingReason: "Insufficient funds",
+  },
+  {
+    id: 6,
+    name: "Apple TV+",
+    amount: "0.007 ETH",
+    hasPendingPayment: true,
+    status: "Pending",
+    nextPayment: "2024-03-12",
+    lastPayment: "2024-02-12",
+    pendingReason: "Transaction failed: Error code 1234",
+  },
+  {
+    id: 7,
+    name: "Amazon Prime",
+    amount: "0.009 ETH",
+    hasPendingPayment: true,
+    status: "Pending",
+    nextPayment: "2024-03-08",
+    lastPayment: "2024-02-08",
+    pendingReason: "Network congestion: Error code 5678",
+  },
 ];
 
 const Subscriptions = () => {
@@ -46,7 +92,7 @@ const Subscriptions = () => {
         <Header />
         <main className="flex-1 p-6 space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">Subscriptions</h1>
+            <h1 className="text-3xl font-bold text-foreground">Subscriptions</h1>
             <Button onClick={() => navigate("/subscriptions/new")}>
               <Plus className="mr-2 h-4 w-4" /> New Subscription
             </Button>
@@ -54,7 +100,7 @@ const Subscriptions = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Active Subscriptions</CardTitle>
+              <CardTitle className="text-foreground">Active Subscriptions</CardTitle>
             </CardHeader>
             <CardContent>
               <SubscriptionList

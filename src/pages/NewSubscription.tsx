@@ -33,6 +33,30 @@ const plans = [
     duration: "Monthly",
     features: ["4K Streaming", "4 Devices", "No Ads"],
   },
+  {
+    id: 4,
+    name: "Spotify Premium",
+    price: "0.003 ETH",
+    priceUSD: "$10",
+    duration: "Monthly",
+    features: ["Ad-free Music", "Offline Mode", "High Quality Audio"],
+  },
+  {
+    id: 5,
+    name: "Xbox Game Pass",
+    price: "0.012 ETH",
+    priceUSD: "$35",
+    duration: "Monthly",
+    features: ["100+ Games", "EA Play Included", "Cloud Gaming"],
+  },
+  {
+    id: 6,
+    name: "HBO Max",
+    price: "0.006 ETH",
+    priceUSD: "$18",
+    duration: "Monthly",
+    features: ["4K Streaming", "3 Devices", "Offline Downloads"],
+  },
 ];
 
 const NewSubscription = () => {
@@ -67,7 +91,7 @@ const NewSubscription = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold">New Subscription</h1>
+            <h1 className="text-3xl font-bold text-foreground">New Subscription</h1>
           </div>
 
           <div className="space-y-6 max-w-4xl mx-auto">
